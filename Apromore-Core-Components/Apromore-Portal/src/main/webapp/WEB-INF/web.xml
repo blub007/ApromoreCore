@@ -71,13 +71,22 @@
   <servlet>
     <description>ZK loader for ZUML pages</description>
     <servlet-name>zkLoader</servlet-name>
-    <!--<servlet-class>org.zkoss.zk.ui.http.DHtmlLayoutServlet</servlet-class>-->
-    <servlet-class>org.zkoss.zk.ui.http.ApromoreLayoutServlet</servlet-class>
+    <servlet-class>org.zkoss.zk.ui.http.DHtmlLayoutServlet</servlet-class>
     <init-param>
       <param-name>update-uri</param-name>
       <param-value>/zkau</param-value>
     </init-param>
     <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet>
+    <description>ZK loader for ZUML pages</description>
+    <servlet-name>zkRoutedLoader</servlet-name>
+    <servlet-class>org.zkoss.zk.ui.http.RoutedLayoutServlet</servlet-class>
+    <init-param>
+      <param-name>update-uri</param-name>
+      <param-value>/zkau</param-value>
+    </init-param>
+    <load-on-startup>2</load-on-startup>
   </servlet>
   <servlet>
     <description>The asynchronous update engine for ZK</description>
@@ -113,6 +122,10 @@
   <servlet-mapping>
     <servlet-name>zkLoader</servlet-name>
     <url-pattern>*.zhtml</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>zkRoutedLoader</servlet-name>
+    <url-pattern>/router/*</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
     <servlet-name>auEngine</servlet-name>

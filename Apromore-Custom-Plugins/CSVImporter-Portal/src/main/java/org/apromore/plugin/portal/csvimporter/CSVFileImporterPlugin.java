@@ -67,7 +67,7 @@ public class CSVFileImporterPlugin implements FileImporterPlugin {
         String zul = "/org/apromore/plugin/portal/csvimporter/csvimporter.zul";
         switch ((String) Sessions.getCurrent().getAttribute("fileimportertarget")) {
         case "page":  // create the view in its own page
-            Executions.getCurrent().sendRedirect(zul, "_blank");
+            Executions.getCurrent().sendRedirect("/router/import-csv" /*zul*/, "_blank");
             break;
 
         case "modal": default:  // create the view in a modal popup within the current page

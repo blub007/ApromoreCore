@@ -77,8 +77,8 @@ import org.zkoss.zk.ui.util.DesktopRecycle;
  * </dl>
  * @author tomyeh
  */
-public class ApromoreLayoutServlet extends HttpServlet {
-	private static final org.slf4j.Logger log = LoggerFactory.getLogger(ApromoreLayoutServlet.class);
+public class RoutedLayoutServlet extends HttpServlet {
+	private static final org.slf4j.Logger log = LoggerFactory.getLogger(RoutedLayoutServlet.class);
 
 	private WebManager _webman;
 	private boolean _webmanCreated;
@@ -198,7 +198,7 @@ public class ApromoreLayoutServlet extends HttpServlet {
 				((SessionCtrl) sess).notifyClientRequest(true);
 
 				final UiFactory uf = wappc.getUiFactory();
-				if (uf.isRichlet(ri, bRichlet)) {
+				if (false /*uf.isRichlet(ri, bRichlet)*/) {
 					final Richlet richlet = uf.getRichlet(ri, path);
 					if (richlet == null)
 						return false; //not found
@@ -212,11 +212,18 @@ public class ApromoreLayoutServlet extends HttpServlet {
 
                                         // Apromore extension begins
                                         if (pagedef == null) {
-                                            try (InputStream in = ApromoreLayoutServlet.class.getClassLoader().getResourceAsStream(path)) {
+                                            String classpath = path;
+                                            switch (path) {
+                                            case "/import-csv":
+                                                classpath = "/org/apromore/plugin/portal/csvimporter/csvimporter.zul";
+                                                break;
+                                            }
+                                            log("Routing URL from " + path + " to " + classpath);
+                                            try (InputStream in = RoutedLayoutServlet.class.getClassLoader().getResourceAsStream(classpath)) {
                                                 pagedef = PageDefinitions.getPageDefinitionDirectly(wapp, PageDefinitions.getLocator(wapp, path), new InputStreamReader(in, "utf-8"), null);
 
                                             } catch (IOException e) {
-                                                log("Unable to read page definition from classpath: " + path, e);
+                                                log("Unable to read page definition " + path + " from classpath: " + classpath, e);
                                             }
                                         }
                                         // Apromore extension ends
