@@ -22,8 +22,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -31,6 +33,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apromore.plugin.router.RouteService;
+
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 
 import org.slf4j.LoggerFactory;
 
@@ -213,17 +221,24 @@ public class RoutedLayoutServlet extends HttpServlet {
                                         // Apromore extension begins
                                         if (pagedef == null) {
                                             String classpath = path;
-                                            switch (path) {
-                                            case "/import-csv":
-                                                classpath = "/org/apromore/plugin/portal/csvimporter/csvimporter.zul";
-                                                break;
-                                            }
-                                            log("Routing URL from " + path + " to " + classpath);
-                                            try (InputStream in = RoutedLayoutServlet.class.getClassLoader().getResourceAsStream(classpath)) {
-                                                pagedef = PageDefinitions.getPageDefinitionDirectly(wapp, PageDefinitions.getLocator(wapp, path), new InputStreamReader(in, "utf-8"), null);
+                                            BundleContext bundleContext = (BundleContext) getServletContext().getAttribute("osgi-bundlecontext");
+                                            log("Bundle context " + bundleContext);
+                                            List<RouteService> routes = (List<RouteService>) bundleContext.getServiceReferences(RouteService.class, null)
+                                                .stream()
+                                                .map(serviceReference -> ((RouteService) bundleContext.getService((ServiceReference) serviceReference)))
+                                                .collect(Collectors.toList());
+                                            log("Routes " + routes);
+                                            for (RouteService route: routes) {
+                                                if (route.hasResource(path)) {
+                                                    try (InputStream in = route.getResourceAsStream(path)) {
+                                                        pagedef = PageDefinitions.getPageDefinitionDirectly(wapp, PageDefinitions.getLocator(wapp, path), new InputStreamReader(in, "utf-8"), null);
 
-                                            } catch (IOException e) {
-                                                log("Unable to read page definition " + path + " from classpath: " + classpath, e);
+                                                    } catch (IOException e) {
+                                                        log("Unable to read page definition " + path + " from classpath: " + classpath, e);
+                                                    }
+
+                                                    break;
+                                                }
                                             }
                                         }
                                         // Apromore extension ends
@@ -261,6 +276,10 @@ public class RoutedLayoutServlet extends HttpServlet {
 					response.getWriter().write(result);
 				}
 			}
+                } catch (InvalidSyntaxException e) {
+			log("Bad filter for routes", e);
+			return false;
+
 		} finally {
 			if (dtrc != null)
 				DesktopRecycles.afterService(dtrc, desktop);

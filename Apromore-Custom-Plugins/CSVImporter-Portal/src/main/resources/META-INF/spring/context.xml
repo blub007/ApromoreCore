@@ -36,10 +36,11 @@
   <reference id="csvImporterLogic" interface="org.apromore.service.csvimporter.CSVImporterLogic"/>
   <reference id="eventLogService" interface="org.apromore.service.EventLogService"/>
 
-  <service interface="org.apromore.plugin.portal.FileImporterPlugin">
-    <beans:bean class="org.apromore.plugin.portal.csvimporter.CSVFileImporterPlugin">
-      <beans:property name="csvImporterLogic" ref="csvImporterLogic"/>
-    </beans:bean>
-  </service>
+  <beans:bean id="bean" class="org.apromore.plugin.portal.csvimporter.CSVFileImporterPlugin">
+    <beans:property name="csvImporterLogic" ref="csvImporterLogic"/>
+  </beans:bean>
+
+  <service interface="org.apromore.plugin.portal.FileImporterPlugin" ref="bean"/>
+  <service interface="org.apromore.plugin.router.RouteService" ref="bean"/>
 
 </beans:beans>

@@ -56,6 +56,7 @@
                             *
                         </Import-Package>
                         <Export-Package>
+                            org.apromore.plugin.router,
                             org.zkoss.*
                         </Export-Package>
                         <DynamicImport-Package>
@@ -80,6 +81,12 @@
             <groupId>org.apromore</groupId>
             <artifactId>ui-theme-compact</artifactId>
             <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>core</artifactId>
+            <version>4.3.0</version>
         </dependency>
 
         <!-- ZK Libraries -->

@@ -23,6 +23,7 @@
 
 package org.apromore.plugin.portal.csvimporter;
 
+import java.io.InputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apromore.plugin.portal.FileImporterPlugin;
 import org.apromore.plugin.portal.PortalContext;
+import org.apromore.plugin.router.RouteService;
 import org.apromore.service.csvimporter.CSVImporterLogic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +40,7 @@ import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.Sessions;
 import org.zkoss.zul.Window;
 
-public class CSVFileImporterPlugin implements FileImporterPlugin {
+public class CSVFileImporterPlugin implements FileImporterPlugin, RouteService {
 
     private static Logger LOGGER = LoggerFactory.getLogger(CSVFileImporterPlugin.class);
 
@@ -48,6 +50,9 @@ public class CSVFileImporterPlugin implements FileImporterPlugin {
         LOGGER.info("Injected CSV importer logic {}", newCSVImporterLogic);
         this.csvImporterLogic = newCSVImporterLogic;
     }
+
+
+    // Implementation of FileImporterPlugin
 
     @Override
     public Set<String> getFileExtensions() {
@@ -81,5 +86,18 @@ public class CSVFileImporterPlugin implements FileImporterPlugin {
             }
             break;
         }
+    }
+
+
+    // Implementation of RouteService
+
+    @Override
+    public boolean hasResource(String path) {
+        return "/import-csv".equals(path);
+    }
+
+    @Override
+    public InputStream getResourceAsStream(String path) {
+        return CSVFileImporterPlugin.class.getClassLoader().getResourceAsStream("/org/apromore/plugin/portal/csvimporter/csvimporter.zul");
     }
 }
