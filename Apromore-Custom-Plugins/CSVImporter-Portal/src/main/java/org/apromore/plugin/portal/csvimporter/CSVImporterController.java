@@ -91,15 +91,21 @@ import org.zkoss.zul.Window;
 public class CSVImporterController extends SelectorComposer<Window> implements Constants {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CSVImporterController.class);
+    static final         String SESSION_ATTRIBUTE_KEY = "csvimport";
 
     // Fields injected from Spring beans/OSGi services
     private EventLogService eventLogService = (EventLogService) SpringUtil.getBean("eventLogService");
 
+    /* This is the better way to pass parameters, but it only works when opening the ZUL within the same browser window.
+
     // Fields injected from the ZK execution
     private CSVImporterLogic csvImporterLogic = (CSVImporterLogic) Executions.getCurrent().getArg().get("csvImporterLogic");
     private Media media = (Media) Executions.getCurrent().getArg().get("media");
+    */
 
     // Fields injected from the ZK session
+    private CSVImporterLogic csvImporterLogic = (CSVImporterLogic) ((Map) Sessions.getCurrent().getAttribute(SESSION_ATTRIBUTE_KEY)).get("csvImporterLogic");
+    private Media media = (Media) ((Map) Sessions.getCurrent().getAttribute(SESSION_ATTRIBUTE_KEY)).get("media");
     private PortalContext portalContext = (PortalContext) Sessions.getCurrent().getAttribute("portalContext");
 
     // Fields injected from csvimporter.zul
@@ -673,6 +679,8 @@ public class CSVImporterController extends SelectorComposer<Window> implements C
     private void close() {
         window.detach();
         window.invalidate();
+        Clients.evalJavaScript("window.close()");  // Rely on browsers only closing windows if they were opened by Javascript
+        Sessions.getCurrent().removeAttribute(SESSION_ATTRIBUTE_KEY);  // Note that this can interfere with other concurrent CSV Importer windows
     }
 
     private StringBuilder validateUniqueAttributes() {

@@ -61,16 +61,25 @@ public class CSVFileImporterPlugin implements FileImporterPlugin {
         Map arg = new HashMap<>();
         arg.put("csvImporterLogic", csvImporterLogic);
         arg.put("media", media);
+        Sessions.getCurrent().setAttribute(CSVImporterController.SESSION_ATTRIBUTE_KEY, arg);
 
         // Create a CSV importer view
         String zul = "/org/apromore/plugin/portal/csvimporter/csvimporter.zul";
-        PortalContext portalContext = (PortalContext) Sessions.getCurrent().getAttribute("portalContext");
-        try {
-            Window window = (Window) portalContext.getUI().createComponent(getClass().getClassLoader(), zul, null, arg);
-            window.doModal();
+        switch ((String) Sessions.getCurrent().getAttribute("fileimportertarget")) {
+        case "page":  // create the view in its own page
+            Executions.getCurrent().sendRedirect(zul, "_blank");
+            break;
 
-        } catch (IOException e) {
-            LOGGER.error("Unable to create window", e);
+        case "modal": default:  // create the view in a modal popup within the current page
+            PortalContext portalContext = (PortalContext) Sessions.getCurrent().getAttribute("portalContext");
+            try {
+                Window window = (Window) portalContext.getUI().createComponent(getClass().getClassLoader(), zul, null, arg);
+                window.doModal();
+
+            } catch (IOException e) {
+                LOGGER.error("Unable to create window", e);
+            }
+            break;
         }
     }
 }
