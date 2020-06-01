@@ -220,21 +220,18 @@ public class RoutedLayoutServlet extends HttpServlet {
 
                                         // Apromore extension begins
                                         if (pagedef == null) {
-                                            String classpath = path;
                                             BundleContext bundleContext = (BundleContext) getServletContext().getAttribute("osgi-bundlecontext");
-                                            log("Bundle context " + bundleContext);
                                             List<RouteService> routes = (List<RouteService>) bundleContext.getServiceReferences(RouteService.class, null)
                                                 .stream()
                                                 .map(serviceReference -> ((RouteService) bundleContext.getService((ServiceReference) serviceReference)))
                                                 .collect(Collectors.toList());
-                                            log("Routes " + routes);
                                             for (RouteService route: routes) {
                                                 if (route.hasResource(path)) {
                                                     try (InputStream in = route.getResourceAsStream(path)) {
                                                         pagedef = PageDefinitions.getPageDefinitionDirectly(wapp, PageDefinitions.getLocator(wapp, path), new InputStreamReader(in, "utf-8"), null);
 
                                                     } catch (IOException e) {
-                                                        log("Unable to read page definition " + path + " from classpath: " + classpath, e);
+                                                        log("Unable to read page definition " + path, e);
                                                     }
 
                                                     break;
