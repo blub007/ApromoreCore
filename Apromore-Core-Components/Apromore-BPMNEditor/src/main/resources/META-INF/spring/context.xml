@@ -43,8 +43,12 @@
 	<reference id="managerClient" interface="org.apromore.manager.client.ManagerService"/>
     <reference id="portalConfig" interface="org.apromore.portal.ConfigBean"/>
     <reference id="processService" interface="org.apromore.service.ProcessService"/>
+    <reference id="workspaceService" interface="org.apromore.service.WorkspaceService"/>
 
     <!-- Exposes the components as OSGi services -->
+    <service interface="org.apromore.plugin.router.RouteService">
+        <beans:bean class="org.apromore.plugin.portal.bpmneditor.BPMNEditorRouteService"/>
+    </service>
     
     <!-- 
     <beans:bean id="plugin" class="org.apromore.plugin.portal.bpmneditor.BPMNEditorPortalPlugin">

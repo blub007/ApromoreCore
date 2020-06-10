@@ -27,7 +27,7 @@
     TODO make a SaveAsDialogController
     listbox to choose native type implemented by the controller -->
 
-<window width="500px" closable="false" position="center">
+<window id="saveAsW" width="500px" closable="false" position="center" apply="org.apromore.plugin.portal.bpmneditor.SaveAsDialogController">
     <vbox vflex="1">
         <grid id="saveAsGrid" >
             <columns sizable="true">
@@ -49,9 +49,9 @@
                 </row>
                 <row spans="3">
                     <div align="center">
-                        <button label="Save" iconSclass="z-icon-check-circle" >
+                        <button id="saveButton" label="Save" iconSclass="z-icon-check-circle" >
                         </button>
-                        <button label="Cancel" iconSclass="z-icon-times-circle">
+                        <button id="cancelButton" label="Cancel" iconSclass="z-icon-times-circle">
                         </button>
                     </div>
                 </row>

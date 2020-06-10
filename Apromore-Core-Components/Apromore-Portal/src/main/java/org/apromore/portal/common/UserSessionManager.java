@@ -69,11 +69,6 @@ public abstract class UserSessionManager {
     public static final String SELECTED_FOLDER_IDS = "SELECTED_FOLDER_IDS";
     public static final String SELECTED_PROCESS_IDS = "SELECTED_PROCESS_IDS";
 
-    /**
-     * Map from user session UUIDs passed as the query part of URLs, to Signavio session objects.
-     */
-    static Map<String,ApromoreSession> editSessionMap = new HashMap<>();
-
     public static void setCurrentUser(UserType user) {
         setAttribute(USER, user);
     }
@@ -179,15 +174,15 @@ public abstract class UserSessionManager {
 
     // TODO: fix the memory leak by reclaiming stale sessions
     public static void setEditSession(String id, ApromoreSession session) {
-        editSessionMap.put(id, session);
+        Sessions.getCurrent().setAttribute(id, session);
     }
 
     public static ApromoreSession getEditSession(String id) {
-        return editSessionMap.get(id);
+        return (ApromoreSession) Sessions.getCurrent().getAttribute(id);
     }
     
     public static void removeEditSession(String id) {
-        editSessionMap.remove(id);
+        Sessions.getCurrent().removeAttribute(id);
     }
 
     public static void setCurrentFolder(FolderType folder) {

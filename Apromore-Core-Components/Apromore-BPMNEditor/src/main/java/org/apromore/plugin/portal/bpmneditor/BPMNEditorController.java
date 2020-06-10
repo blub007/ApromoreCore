@@ -24,6 +24,7 @@
 
 package org.apromore.plugin.portal.bpmneditor;
 
+import java.io.IOException;
 import java.io.OutputStream;
 // Java 2 Standard packages
 import java.util.*;
@@ -34,11 +35,14 @@ import javax.inject.Inject;
 // Third party packages
 import org.apromore.plugin.editor.EditorPlugin;
 import org.apromore.portal.context.EditorPluginResolver;
+import org.apromore.plugin.portal.PortalContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zkoss.zk.ui.Executions;
+import org.zkoss.zk.ui.Sessions;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
+import org.zkoss.zul.Window;
 
 import org.apromore.helper.Version;
 // Local packages
@@ -54,6 +58,7 @@ import org.apromore.portal.dialogController.MainController;
 import org.apromore.portal.dialogController.dto.ApromoreSession;
 import org.apromore.portal.exception.ExceptionFormats;
 import org.apromore.service.ProcessService;
+import org.apromore.service.WorkspaceService;
 import org.json.JSONException;
 
 public class BPMNEditorController extends BaseController {
@@ -69,11 +74,13 @@ public class BPMNEditorController extends BaseController {
 
     @Inject private UserSessionManager userSessionManager;
     private ProcessService processService;
+    private WorkspaceService workspaceService;
 
     public BPMNEditorController() {
         super();
 
         processService = (ProcessService) beanFactory.getBean("processService");
+        workspaceService = (WorkspaceService) beanFactory.getBean("workspaceService");
         
         if (userSessionManager.getCurrentUser() == null) {
             LOGGER.warn("Faking user session with admin(!)");
@@ -194,9 +201,20 @@ public class BPMNEditorController extends BaseController {
             @Override
             public void onEvent(final Event event) throws InterruptedException {
                 try {
-                	mainC.saveModel(process, vst, editSession, true, eventToString(event));
-                } catch (InterruptedException ex) {
-                    LOGGER.error("Error saving model.", ex);
+                    //mainC.saveModel(process, vst, editSession, true, eventToString(event));
+                    Map arg = new HashMap<>();
+                    arg.put("service", mainC.getService());
+                    arg.put("editSession", editSession);
+                    arg.put("isNormalSave", true);
+                    arg.put("data", eventToString(event));
+                    arg.put("processService", processService);
+                    arg.put("workspaceService", workspaceService);
+                    PortalContext portalContext = (PortalContext) Sessions.getCurrent().getAttribute("portalContext");
+                    Window window = (Window) portalContext.getUI().createComponent(getClass().getClassLoader(), "/org/apromore/plugin/portal/bpmneditor/saveAsDialog.zul", null, arg);
+                    window.doModal();
+
+                } catch (IOException ex) {
+                    LOGGER.error("Unable to create window", ex);
                 }
             }
         });
@@ -204,9 +222,25 @@ public class BPMNEditorController extends BaseController {
             @Override
             public void onEvent(final Event event) throws InterruptedException {
                 try {
-                	mainC.saveModel(process, vst, editSession, true, eventToString(event));
+                    //mainC.saveModel(process, vst, editSession, true, eventToString(event));
+                    Map arg = new HashMap<>();
+                    arg.put("service", mainC.getService());
+                    arg.put("editSession", editSession);
+                    arg.put("isNormalSave", true);
+                    arg.put("data", eventToString(event));
+                    arg.put("processService", processService);
+                    arg.put("workspaceService", workspaceService);
+                    PortalContext portalContext = (PortalContext) Sessions.getCurrent().getAttribute("portalContext");
+                    Window window = (Window) portalContext.getUI().createComponent(getClass().getClassLoader(), "/org/apromore/plugin/portal/bpmneditor/saveAsDialog.zul", null, arg);
+                    window.doModal();
+
+                } catch (IOException e) {
+                    LOGGER.error("Unable to create window", e);
+
+/*
                 } catch (InterruptedException ex) {
                     LOGGER.error("Error saving model.", ex);
+*/
                 }
             }
         });

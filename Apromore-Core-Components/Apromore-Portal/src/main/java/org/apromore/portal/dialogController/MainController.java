@@ -525,7 +525,7 @@ public class MainController extends BaseController implements MainControllerInte
             ApromoreSession session = new ApromoreSession(editSession, null, this, process, version, null, null, requestParameterTypes);
             UserSessionManager.setEditSession(id, session);
 
-            String url = "macros/openModelInBPMNio.zul?id=" + id;
+            String url = "router/process-model?id=" + id;
             if (newProcess) url += "&newProcess=true";
             instruction += "window.open('" + url + "');";
 
