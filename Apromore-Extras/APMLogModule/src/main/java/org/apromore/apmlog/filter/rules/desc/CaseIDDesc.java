@@ -2,10 +2,8 @@
  * #%L
  * This file is part of "Apromore Core".
  * %%
- * Copyright (C) 2018 - 2020 The University of Melbourne.
+ * Copyright (C) 2018 - 2020 Apromore Pty Ltd.
  * %%
- * Copyright (C) 2020, Apromore Pty Ltd.
- *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -28,7 +26,12 @@ import org.apromore.apmlog.filter.rules.RuleValue;
 
 import java.util.*;
 
+/**
+ * @author Chii Chang
+ */
 public class CaseIDDesc {
+
+
 
     public static String getDescription(LogFilterRule logFilterRule) {
         String desc = "";
@@ -41,24 +44,19 @@ public class CaseIDDesc {
         List<RuleValue> ruleValueList = new ArrayList<RuleValue>(ruleValues);
         Collections.sort(ruleValueList);
 
-        for (int i = 0; i < ruleValueList.size(); i++) {
-            desc += ruleValueList.get(i).getStringValue();
-            if (i < ruleValueList.size() -1) desc += ", ";
-        }
+        if (allNumeric(ruleValueList)) {
+            List<Pair> pairList = getPairs(ruleValueList);
 
-//        if (allNumeric(ruleValueList)) {
-//            List<CaseVariantDesc.Pair> pairList = getPairs(ruleValueList);
-//
-//            for (int i = 0; i < pairList.size(); i++) {
-//                desc += pairList.get(i).toString();
-//                if (i < pairList.size() -1) desc += ", ";
-//            }
-//        } else {
-//            for (int i = 0; i < ruleValueList.size(); i++) {
-//                desc += ruleValueList.get(i).getStringValue();
-//                if (i < ruleValueList.size() -1) desc += ", ";
-//            }
-//        }
+            for (int i = 0; i < pairList.size(); i++) {
+                desc += pairList.get(i).toString();
+                if (i < pairList.size() -1) desc += ", ";
+            }
+        } else {
+            for (int i = 0; i < ruleValueList.size(); i++) {
+                desc += ruleValueList.get(i).getStringValue();
+                if (i < ruleValueList.size() -1) desc += ", ";
+            }
+        }
 
         desc += "]";
 
@@ -75,27 +73,59 @@ public class CaseIDDesc {
         return true;
     }
 
-    private static List<CaseVariantDesc.Pair> getPairs(List<RuleValue> ruleValueList) {
+    private static List<Pair> getPairs(List<RuleValue> ruleValues) {
 
-        List<CaseVariantDesc.Pair> pairList = new ArrayList<CaseVariantDesc.Pair>();
+        boolean hasDecimal = true;
 
-        BitSet marked  = new BitSet(ruleValueList.size());
-        for (int i = 0; i < ruleValueList.size(); i++) {
+        for (RuleValue rv : ruleValues) {
+            String sVal = rv.getStringValue();
+            if (!sVal.contains(".")) {
+                hasDecimal = false;
+                break;
+            }
+        }
+
+        List<Pair> pairList = new ArrayList<Pair>();
+
+        List<Number> allVals;
+
+        if (!hasDecimal) {
+            List<Integer> allIntVals = new ArrayList<>();
+            for (RuleValue rv : ruleValues) {
+                allIntVals.add(Integer.valueOf(rv.getStringValue()));
+            }
+            Collections.sort(allIntVals);
+            allVals = new ArrayList<>(allIntVals);
+        } else {
+            List<Double> allDoubleVals = new ArrayList<>();
+            for (RuleValue rv : ruleValues) {
+                allDoubleVals.add(Double.valueOf(rv.getStringValue()));
+            }
+            Collections.sort(allDoubleVals);
+            allVals = new ArrayList<>(allDoubleVals);
+        }
+
+
+
+
+        BitSet marked  = new BitSet(allVals.size());
+
+        for (int i = 0; i < allVals.size(); i++) {
             if (!marked.get(i)) {
-                RuleValue ruleValue = ruleValueList.get(i);
-                int intVal = ruleValue.getIntValue();
+
+                Number val = allVals.get(i);
+
                 int stopIndex = i;
 
-                if (ruleValueList.size() > 1) {
-                    for (int j = (i + 1); j < ruleValueList.size(); j++) {
-                        RuleValue jRuleValue = ruleValueList.get(j);
-                        int jIntVal = jRuleValue.getIntValue();
+                if (allVals.size() > 1) {
+                    for (int j = (i + 1); j < allVals.size(); j++) {
+                        Number jVal = allVals.get(j);
 
-                        int preRuleIntVal = ruleValueList.get(j-1).getIntValue();
+                        Number preVal = allVals.get(j-1);
 
-                        if (jIntVal == preRuleIntVal + 1) {
+                        if (jVal.doubleValue() == preVal.doubleValue() + 1) {
                             marked.set(j, true);
-                            if (j == ruleValueList.size()-1) {
+                            if (j == allVals.size()-1) {
                                 stopIndex = j;
                             }
                         } else {
@@ -106,9 +136,9 @@ public class CaseIDDesc {
                     }
                 }
 
+                Number stopVal = allVals.get(stopIndex);
 
-                int stopIntVal = ruleValueList.get(stopIndex).getIntValue();
-                CaseVariantDesc.Pair pair = new CaseVariantDesc.Pair(intVal, stopIntVal);
+                Pair pair = new Pair(val, stopVal);
                 pairList.add(pair);
             }
         }
@@ -117,13 +147,13 @@ public class CaseIDDesc {
     }
 
     static class Pair {
-        public int fromVal, toVal;
-        public Pair(int fromVal, int toVal){
+        public Number fromVal, toVal;
+        public Pair(Number fromVal, Number toVal){
             this.fromVal = fromVal;
             this.toVal = toVal;
         }
         public String toString() {
-            if (fromVal != toVal) return fromVal + " to " + toVal;
+            if (fromVal.doubleValue() != toVal.doubleValue()) return fromVal + " to " + toVal;
             else return fromVal + "";
         }
     }

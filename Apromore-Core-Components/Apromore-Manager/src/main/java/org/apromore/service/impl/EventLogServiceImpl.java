@@ -4,10 +4,8 @@
  * 
  * Copyright (C) 2016 - 2017 Queensland University of Technology.
  * %%
- * Copyright (C) 2018 - 2020 The University of Melbourne.
+ * Copyright (C) 2018 - 2020 Apromore Pty Ltd.
  * %%
- * Copyright (C) 2020, Apromore Pty Ltd.
- *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -311,6 +309,18 @@ public class EventLogServiceImpl implements EventLogService {
         exportLogResultType.setMessage(pluginMessages);
         exportLogResultType.setNative(new DataHandler(new ByteArrayDataSource(new ByteArrayInputStream(outputStream.toByteArray()), Constants.GZ_MIMETYPE)));
         return exportLogResultType;
+    }
+
+    @Override
+    public void cloneLog(String username, Integer folderId, String logName, Integer sourceLogId,
+                  String domain, String created, boolean publicModel)
+            throws Exception {
+        Log log = logRepo.findUniqueByID(sourceLogId);
+        XLog xlog = logRepo.getProcessLog(log, null);
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        exportToStream(outputStream, xlog);
+        ByteArrayInputStream inputStreamLog = new ByteArrayInputStream(outputStream.toByteArray());
+        importLog(username, folderId, logName, inputStreamLog, "xes.gz", domain, created, publicModel);
     }
 
     @Override

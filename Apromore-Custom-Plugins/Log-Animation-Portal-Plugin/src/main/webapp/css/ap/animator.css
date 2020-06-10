@@ -2,10 +2,8 @@
  * #%L
  * This file is part of "Apromore Core".
  * %%
- * Copyright (C) 2018 - 2020 The University of Melbourne.
+ * Copyright (C) 2018 - 2020 Apromore Pty Ltd.
  * %%
- * Copyright (C) 2020, Apromore Pty Ltd.
- *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -29,6 +27,17 @@
     height: var(
             --ap-menu-height
     ) !important;
+}
+
+.x-panel-editor-north .x-toolbar > table > tbody > tr > td:first-child,
+.x-panel-editor-north .x-toolbar > table > tbody > tr > td:nth-child(2) {
+    cursor: initial !important;
+    pointer-events: none;
+}
+
+.x-panel-editor-north .x-toolbar button[title='Save'],
+.x-panel-editor-north .x-toolbar button[title='Save a copy...'] {
+    opacity: 0.3;
 }
 
 .x-panel-editor-north .x-toolbar .ytb-sep {

@@ -1,3 +1,24 @@
+/*-
+ * #%L
+ * This file is part of "Apromore Core".
+ * %%
+ * Copyright (C) 2018 - 2020 Apromore Pty Ltd.
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Lesser Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Lesser Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/lgpl-3.0.html>.
+ * #L%
+ */
 /*
  * This file is part of "Apromore".
  *
@@ -52,6 +73,7 @@ import java.util.List;
  * Modified: Chii Chang (19/05/2020)
  * Modified: Chii Chang (24/05/2020)
  * Modified: Chii Chang (01/06/2020)
+ * Modified: Chii Chang (05/06/2020)
  */
 public class ATrace implements Serializable, LaTrace {
 
@@ -137,6 +159,7 @@ public class ATrace implements Serializable, LaTrace {
                 AActivity pActivity = activityList.get(i-1);
                 waitCount += 1;
                 long waitTime = activity.getStartTimeMilli() - pActivity.getEndTimeMilli();
+                if (waitTime < 0) waitTime = 0;
                 this.totalWaitingTime += waitTime;
                 if(waitTime > this.maxWaitingTime) {
                     this.maxWaitingTime = waitTime;
@@ -166,9 +189,15 @@ public class ATrace implements Serializable, LaTrace {
     private void setEventList(XTrace xTrace) {
         eventList = new ArrayList<>();
 
+//        List<XEvent> xEventList = new ArrayList<>();
+
         for (int i = 0; i < xTrace.size(); i++) {
-            eventList.add(new AEvent(xTrace.get(i)));
+            XEvent xEvent = xTrace.get(i);
+            eventList.add(new AEvent(xEvent));
+//            xEventList.add(xEvent);
         }
+
+//        xTrace.removeAll(xEventList); //clean memory
     }
 
 
