@@ -2,10 +2,8 @@
  * #%L
  * This file is part of "Apromore Core".
  * %%
- * Copyright (C) 2018 - 2020 The University of Melbourne.
- * %%
  * Copyright (C) 2020, Apromore Pty Ltd.
- *
+ * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation; either version 3 of the
@@ -44,6 +42,12 @@ public class CSVFileImporterPlugin implements FileImporterPlugin, RouteService {
 
     private static Logger LOGGER = LoggerFactory.getLogger(CSVFileImporterPlugin.class);
 
+    /** The URL to display the CSV importer. */
+    private final String urlPath = "/import-csv";
+
+    /** The resource path of the ZUML template. */
+    private final String zul = "/zul/csvimporter.zul";
+
     private CSVImporterLogic csvImporterLogic;
 
     public void setCsvImporterLogic(CSVImporterLogic newCSVImporterLogic) {
@@ -69,10 +73,9 @@ public class CSVFileImporterPlugin implements FileImporterPlugin, RouteService {
         Sessions.getCurrent().setAttribute(CSVImporterController.SESSION_ATTRIBUTE_KEY, arg);
 
         // Create a CSV importer view
-        String zul = "/org/apromore/plugin/portal/csvimporter/csvimporter.zul";
         switch ((String) Sessions.getCurrent().getAttribute("fileimportertarget")) {
         case "page":  // create the view in its own page
-            Executions.getCurrent().sendRedirect("/router/import-csv" /*zul*/, "_blank");
+            Executions.getCurrent().sendRedirect("/router" + urlPath, "_blank");
             break;
 
         case "modal": default:  // create the view in a modal popup within the current page
@@ -93,11 +96,11 @@ public class CSVFileImporterPlugin implements FileImporterPlugin, RouteService {
 
     @Override
     public boolean hasResource(String path) {
-        return "/import-csv".equals(path);
+        return urlPath.equals(path);
     }
 
     @Override
     public InputStream getResourceAsStream(String path) {
-        return CSVFileImporterPlugin.class.getClassLoader().getResourceAsStream("/org/apromore/plugin/portal/csvimporter/csvimporter.zul");
+        return CSVFileImporterPlugin.class.getClassLoader().getResourceAsStream(zul);
     }
 }
